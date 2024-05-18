@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import { BrowserRouter, Routes,Route } from "react-router-dom";
 import Home from "./components/Home";
 import Cart from "./components/Cart";
+import Success from "./components/Success";
 
 function App() {
   return (
@@ -16,6 +17,9 @@ function App() {
 
       <Routes>
   <Route path="/cart" element={<Cart/>} />
+</Routes>
+<Routes>
+  <Route path="/success" element={<Success/>} />
 </Routes>
 
       </div>

@@ -3,6 +3,8 @@ import { CartState } from "../context/Context";
 import { ListGroup,Button ,Row,Col,Form,Image} from "react-bootstrap";
 import Rating from "./Rating";
 import { AiFillDelete } from "react-icons/ai";
+import axios from 'axios'
+import { loadStripe } from '@stripe/stripe-js'
 
 
 const Cart = () => {
@@ -13,6 +15,31 @@ const Cart = () => {
   useEffect(() => {
     setTotal(cart.reduce((acc,curr)=> acc+Number(curr.price) * curr.qty,0));
   })
+
+
+
+  const handleCheckout = async () => {
+    const stripe = await loadStripe("pk_test_51PHX2WSELyXIcG9qx0D3rtrCLvB75bVuUUoflf0ge5buknY2xmVY3JUt4M70MAYk61Gjhqwu9zfwlmNLEjofKaVn00EMYyFvEg")
+
+    const lineItems = cart.map((item) => {
+        return {
+            price_data: {
+                currency: 'usd',
+                product_data: {
+                    name: item.name
+                },
+                unit_amount: item.price * 100 // because stripe interprets price in cents
+            },
+            quantity: item.qty
+        }
+    })
+
+    const { data } = await axios.post('http://localhost:5000/checkout', { lineItems })
+
+   
+
+    await stripe.redirectToCheckout({ sessionId: data.id })
+}
   return (
   <div className="home">
     <div className="productContainer">
@@ -76,7 +103,7 @@ const Cart = () => {
     <div className="filters summary">
       <span className="title"> subtotal ({cart.length}) items</span>
       <span style={{ fontWeight: 700, fontSize: 20 }}>Total: ₹ {total}</span>
-        <Button type="button" disabled={cart.length === 0}>
+        <Button type="button" disabled={cart.length === 0} onClick={handleCheckout}>
           Proceed to Checkout
         </Button>
     </div>
